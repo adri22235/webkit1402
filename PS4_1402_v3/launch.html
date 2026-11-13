@@ -4,6 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>afterglow</title>
+
+    <!-- FIX #3: Cache-control meta tags for PS4 browser
+         PROBLEM: GitHub Pages does NOT send Cache-Control: no-store headers.
+         PS4's internal WebKit browser caches aggressively. When the exploit
+         code is updated on GitHub but the PS4 has cached an old version,
+         the exploit runs mismatched code — old core.js with new afterglow-g.js
+         or vice versa — causing kernel panic (C9-3) or black screen.
+
+         FIX: These meta tags tell PS4's WebKit to not cache the page.
+         Combined with cache-busting query strings on JS imports, this
+         ensures every load gets fresh code.
+    -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <style>
       :root {
         --bg: #0b0d10;
@@ -174,8 +190,16 @@
       <div id="out"></div>
     </div>
     <p class="byline">by well0nez/m0zz</p>
+
+    <!-- FIX #4: Cache-busting on JS import
+         PROBLEM: The original import "./jb-g.js?v=hen184-1402-v3" uses a
+         static version string. PS4 browser may cache this across sessions.
+
+         FIX: Dynamic cache-busting via inline script that appends Date.now()
+    -->
     <script type="module">
-      import "./jb-g.js?v=hen184-1402-v3";
+      const cb = Date.now();
+      import("./jb-g.js?v=hen184-1402-v3&_cb=" + cb);
     </script>
   </body>
 </html>

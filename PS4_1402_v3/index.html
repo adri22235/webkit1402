@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Akatsuki Clan ☁</title>
+
+    <!-- FIX #5: Cache-control meta tags for PS4 browser -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <link rel="stylesheet" href="style.css" />
     <style>
       /* ── password gate overlay ───────────────────────────────────── */
@@ -268,6 +274,15 @@
       var matrixTimer = setInterval(drawMatrix, 40);
 
       /* ── unlock ─────────────────────────────────────────────────── */
+      /* FIX #6: Cache-busting on dynamically loaded scripts
+         PROBLEM: matrix.js and launch.js loaded with static ?v=1402b string.
+         PS4 browser caches these. After an update to the exploit, the
+         PS4 may still load the old cached version.
+
+         FIX: Append Date.now() timestamp to bust cache on every load.
+      */
+      var cacheBust = "_cb=" + Date.now();
+
       function attempt() {
         if (true || input.value === PASS) {
           /* stop gate matrix, fade overlay, then inject scripts */
@@ -277,11 +292,11 @@
             overlay.classList.add("hidden");
             /* now load the main page scripts so countdown starts */
             var s1 = document.createElement("script");
-            s1.src = "matrix.js?v=1402b";
+            s1.src = "matrix.js?v=1402b&" + cacheBust;
             document.body.appendChild(s1);
             s1.onload = function () {
               var s2 = document.createElement("script");
-              s2.src = "launch.js?v=1402b";
+              s2.src = "launch.js?v=1402b&" + cacheBust;
               document.body.appendChild(s2);
             };
           }, 500);
