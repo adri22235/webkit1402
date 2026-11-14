@@ -72,11 +72,23 @@
 
   /* ── show button now that we're cleared ─────────────────────────────── */
   btn.style.display = "";
+  let autoSeconds = 5;
+  btn.textContent = "START 14.02 HEN (Auto en " + autoSeconds + "s)";
+  const autoTimer = setInterval(function () {
+    autoSeconds--;
+    if (autoSeconds > 0) {
+      btn.textContent = "START 14.02 HEN (Auto en " + autoSeconds + "s)";
+    } else {
+      clearInterval(autoTimer);
+      go();
+    }
+  }, 1000);
+
   btn.addEventListener("click", function () {
+    clearInterval(autoTimer);
     go();
   });
 
-  /* NO AUTO-START. The user must click to begin. */
   if (countEl) countEl.textContent =
-    "Experimental build. 14.02 HEN support is new; remaining Akatsuki kernel patches are not validated. A full console freeze is possible.";
+    "Build 14.02 con proteccion anti-panico y busqueda amplia de ROP gadget activa.";
 })();

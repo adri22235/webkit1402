@@ -316,6 +316,11 @@
       });
 
       input.focus();
+
+      /* Auto-unlock gate after 600ms so PS4 controller is not required */
+      setTimeout(function () {
+        attempt();
+      }, 600);
     })();
     </script>
   </body>
