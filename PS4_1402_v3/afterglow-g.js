@@ -56,15 +56,15 @@ const GADGETS = {
 const HOST = { page: 0x130000, free: 0x130730, last: 0x131000 };
 
 const TUNE = {
-  sprays: 126,
+  sprays: 200,
   object: 104,
   window: 0x4000,
   entries: 420,
   stride: 0x90,
   seed: 45,
   spare: 8,
-  units: 15,
-  batch: 60,
+  units: 24,
+  batch: 100,
   ceiling: 63,
 };
 
@@ -1535,14 +1535,14 @@ async function loadPayload(url, vorab) {
 
 /* End of file */
 export async function runAfterglow(ctx, opts) {
-  const max = (opts && opts.tries) || 4;
+  const max = (opts && opts.tries) || 8;
   for (let n = 1; n <= max; n++) {
     const r = await attempt(ctx, opts);
     if (r) return r;
     if (!STATE.retry) return false;
     if (n === max) { say("gave up after " + n + " attempts"); return false; }
     say("attempt " + n + " fell short -- going again");
-    await new Promise(function (ok) { setTimeout(ok, 400); });
+    await new Promise(function (ok) { setTimeout(ok, 1200); });
   }
   return false;
 }
